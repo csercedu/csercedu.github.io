@@ -10,6 +10,10 @@ on:
       ids:
         description: "고른 후보 ID (쉼표로, 카드 순서대로)"
         required: true
+      issue:
+        description: "결과를 댓글로 달 요청 글 번호 (없으면 비워 두기)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -73,7 +77,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          ISSUE: ${{ github.event.issue.number }}
+          ISSUE: ${{ github.event.issue.number || inputs.issue }}
         run: python scripts/pipeline.py make --ids "${{ steps.req.outputs.ids }}" ${ISSUE:+--issue $ISSUE}
 
       - name: 초안 저장
@@ -107,7 +111,7 @@ jobs:
           python scripts/pipeline.py notify
 
       - name: 실패하면 요청 글에 알리기
-        if: failure() && github.event_name == 'issues'
+        if: failure() && (github.event_name == 'issues' || inputs.issue != '')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh issue comment ${{ github.event.issue.number }} --repo "$GITHUB_REPOSITORY" --body "카드를 만들지 못했습니다. 실행 기록을 확인해 주세요 → ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: gh issue comment ${{ github.event.issue.number || inputs.issue }} --repo "$GITHUB_REPOSITORY" --body "카드를 만들지 못했습니다. 실행 기록을 확인해 주세요 → ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
