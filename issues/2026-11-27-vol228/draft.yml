@@ -1,0 +1,42 @@
+# 주간교육뉴스 초안 — 이 파일을 고치면 카드뉴스에 그대로 반영됩니다.
+# 기사 바꾸기: picks 의 항목을 지우고 alternates 의 항목을 옮겨 오세요.
+# 'check' 항목은 AI가 틀렸을 수 있는 부분입니다. 확인 후 지워도 됩니다.
+vol: 228
+date: '2026-11-27'
+status: draft
+written_by: gemini-3.5-flash
+generated_at: 2026-11-20T15:57+09:00
+selected_by: 편집자
+request_issue: 2
+hashtags:
+- 대안교육기관법
+- 기독교대안학교
+- 한국교회연합
+- 교육자율성
+- 경기도교육청
+- 기독학부모
+picks:
+- order: 1
+  cand: 1
+  category: 대안교육
+  source: 기독일보
+  link: https://www.christiandaily.co.kr/news/167710
+  original_title: “대안교육기관법 개정안, 기독교 대안학교 규제가 목적인가”
+  headline: |-
+    대안교육기관법 개정안
+    기독 대안학교 규제 우려
+  key_number: 4/78곳
+  key_label: 경기도 승인 비율
+  points:
+  - 한교연이 대안교육기관법 개정안의 철회를 촉구했다.
+  - 모호한 편향 금지 기준이 성경적 교육 검열로 악용될 수 있다고 비판했다.
+  - 국가 정책을 규제에서 실질적 육성과 재정 지원으로 전환할 것을 요구했다.
+  image_prompt: A realistic editorial photo of a calm classroom in an alternative school, with desks, wooden chairs, and students seen from behind, with warm natural light coming through a large window.
+  highlight: 한교연이 대안교육기관법 개정안이 기독교 대안학교 교육을 통제하고 규제할 위험이 있다며 철회를 촉구했습니다.
+  summary: |-
+    한국교회연합은 최근 발의된 대안교육기관법 개정안이 과도한 규제로 교육 자율성을 침해한다며 철회를 요구했다. 개정안의 정치적·개인적 편견 전파 금지 조항이 주관적 잣대에 따른 교육 검열 수단으로 악용될 수 있다고 비판했다. 특히 기독교 세계관에 따른 교육이 중립성 위반으로 몰려 등록 취소나 고발의 표적이 될 수 있다고 우려했다. 이에 국가가 통제 대신 학부모의 교육 선택권을 보장하고 실질적인 지원책을 마련할 것을 촉구했다.
+  why: 편집자 선택 — 연구소 관심 분야인 기독교대안학교 관련 법안 개정과 현장 우려를 다룬 기사이며 교계 성명 발표 내용을 반영해 선정했습니다.
+  check:
+  - 핵심 세 줄은 3줄, 줄당 34자 이내 권장
+alternates: []
+events: []
