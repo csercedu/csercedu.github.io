@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ issue.title }}</title></head>
+<body style="margin:0;background:#f4f2ed;font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#161616;word-break:keep-all">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ed"><tr><td align="center" style="padding:20px 10px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff">
+  <tr><td style="padding:22px 26px 10px;border-bottom:4px solid #161616">
+    <div style="font-size:12px;color:#6b6b6b">하나님의 교육이 가득한 세상</div>
+    <div style="font-size:20px;font-weight:800;color:#1d3b6a">{{ site.org }} 주간교육뉴스</div>
+    <div style="font-size:14px;margin-top:6px"><span style="background:#e8603c;color:#fff;font-weight:800;padding:1px 8px">VOL.{{ issue.vol }}</span> {{ issue.date_label }}</div>
+  </td></tr>
+  <tr><td style="padding:16px 26px 4px"><a href="{{ issue.url }}"><img src="{{ issue.cover_url }}" width="548" alt="주간교육뉴스 표지" style="width:100%;max-width:548px;display:block;border:0"></a></td></tr>
+  <tr><td style="padding:6px 26px 0;font-size:14px;font-weight:700">{% for t in issue.hashtags %}#{{ t }} {% endfor %}</td></tr>
+  {% for p in issue.picks %}
+  <tr><td style="padding:20px 26px 0">
+    {% if p.photo %}<img src="{{ p.photo }}" width="548" alt="" style="width:100%;max-width:548px;height:auto;display:block;border:0;margin-bottom:4px">{% if p.photo_credit %}<div style="font-size:11px;color:#888;margin-bottom:10px">{{ p.photo_credit }}</div>{% endif %}{% endif %}
+    <div style="font-size:17px;font-weight:800;line-height:1.45"><span style="background:#e8603c;color:#fff;padding:0 7px;margin-right:6px">{{ loop.index }}</span>{{ p.headline_line }}</div>
+    <div style="font-size:15px;font-weight:700;color:#9a3d1f;margin:8px 0 6px;line-height:1.55">{{ p.highlight }}</div>
+    <div style="font-size:15px;line-height:1.7;color:#222">{{ p.summary }}</div>
+    <div style="font-size:13px;margin-top:6px"><a href="{{ p.link }}" style="color:#1d3b6a">{{ p.source }} 원문 보기 ›</a></div>
+  </td></tr>
+  {% endfor %}
+  <tr><td align="center" style="padding:28px 26px 26px">
+    <a href="{{ issue.url }}" style="display:inline-block;background:#161616;color:#fff;font-weight:800;text-decoration:none;padding:13px 26px">카드뉴스로 보기</a>
+  </td></tr>
+  <tr><td style="padding:16px 26px 24px;border-top:1px solid #e3e3e3;font-size:12px;color:#888;line-height:1.6">
+    기사의 저작권은 각 언론사에 있으며, 요약은 {{ site.org }}가 작성했습니다.<br>
+    {% if site.contact %}문의·수신 거부: {{ site.contact }}<br>{% endif %}
+    <a href="{{ site.base_url }}" style="color:#888">지난 호 모두 보기</a>
+  </td></tr>
+</table></td></tr></table>
+</body></html>

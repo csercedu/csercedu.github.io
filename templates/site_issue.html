@@ -1,0 +1,47 @@
+{% extends "site_base.html" %}
+{% block head %}
+<style>
+h1 { font-size:26px; margin:4px 0 6px; }
+.meta { color:var(--muted); font-size:14px; margin-bottom:14px; }
+.tags { margin:8px 0 18px; }
+.slider { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; padding-bottom:10px; -webkit-overflow-scrolling:touch; }
+.slider img { width:min(560px, 86vw); aspect-ratio:1; scroll-snap-align:center; flex:none; box-shadow:0 2px 10px rgba(0,0,0,.15); background:#ddd; }
+.hint { font-size:13px; color:var(--muted); margin:4px 0 26px; }
+h2 { font-size:19px; border-top:4px solid var(--ink); padding-top:12px; margin-top:34px; }
+.item { background:#fff; padding:18px 20px; margin:14px 0; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.item img.photo { width:100%; aspect-ratio:2/1; object-fit:cover; display:block; margin:-18px -20px 14px; width:calc(100% + 40px); }
+.item .ai { font-size:12px; color:var(--muted); margin:-10px 0 10px; }
+.item .no { display:inline-block; background:var(--orange); color:#fff; font-weight:800; width:28px; text-align:center; margin-right:8px; }
+.item h3 { display:inline; font-size:18px; }
+.item .hl { margin:10px 0 6px; font-weight:700; color:#9a3d1f; }
+.item .src { font-size:14px; color:var(--muted); margin-top:8px; }
+.item .src a { color:var(--navy); font-weight:700; }
+.share { margin-top:28px; }
+.share button { font:inherit; font-weight:700; background:var(--ink); color:#fff; border:0; padding:10px 16px; cursor:pointer; }
+.nav2 { display:flex; justify-content:space-between; margin-top:30px; font-size:15px; }
+</style>
+{% endblock %}
+{% block main %}
+<div class="meta"><span class="vol">VOL.{{ issue.vol }}</span>{{ issue.date_label }} · {{ issue.date }}</div>
+<h1>{{ issue.title }}</h1>
+<div class="tags">{% for t in issue.hashtags %}<span class="tag">#{{ t }}</span>{% endfor %}</div>
+<div class="slider">{% for c in issue.cards %}<img src="{{ c }}" alt="주간교육뉴스 VOL.{{ issue.vol }} 카드 {{ loop.index }}" loading="lazy">{% endfor %}</div>
+<div class="hint">← 옆으로 넘겨 보세요 →</div>
+
+<h2>이번 호 기사</h2>
+{% for p in issue.picks %}
+<div class="item">
+  {% if p.photo %}<img class="photo" src="{{ p.photo }}" alt="" loading="lazy">{% if p.photo_credit %}<div class="ai">{{ p.photo_credit }}</div>{% endif %}{% endif %}
+  <span class="no">{{ loop.index }}</span><h3>{{ p.headline_line }}</h3>
+  <div class="hl">{{ p.highlight }}</div>
+  <div>{{ p.summary }}</div>
+  <div class="src">출처: <a href="{{ p.link }}" target="_blank" rel="noopener">{{ p.source }} 「{{ p.original_title }}」 원문 보기 ↗</a></div>
+</div>
+{% endfor %}
+
+<div class="share"><button onclick="navigator.clipboard.writeText(location.href).then(()=>this.textContent='링크를 복사했습니다')">이 호 링크 복사</button></div>
+<div class="nav2">
+  <span>{% if prev %}<a href="{{ prev.url }}">← VOL.{{ prev.vol }}</a>{% endif %}</span>
+  <span>{% if next %}<a href="{{ next.url }}">VOL.{{ next.vol }} →</a>{% endif %}</span>
+</div>
+{% endblock %}

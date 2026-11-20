@@ -1,0 +1,99 @@
+name: 2. 목요일 알림 · AI에게 맡기기
+
+# 예약 실행(목요일 저녁): 이번 호 기사를 아직 고르지 않았으면 '기사를 골라 주세요' 알림만 보낸다.
+# 수동 실행(Run workflow): AI가 대신 기사를 골라 카드뉴스 시안을 만든다.
+
+on:
+  schedule:
+    - cron: "7 9 * * 4"   # 매주 목요일 오후 6시 7분 (한국 시간)
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "AI가 대신 고릅니다. 이미 있는 초안도 새로 만들까요? (고친 내용은 사라집니다)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: cserc-news
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 카드용 그림 문자 글꼴 설치
+        run: sudo apt-get install -y -qq fonts-noto-color-emoji fonts-noto-cjk >/dev/null
+
+      - name: 지난 수집 자료 불러오기
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/pool
+            data/bodies
+            output
+          key: newsdata-${{ github.run_id }}
+          restore-keys: newsdata-
+
+      - name: (예약) 고르기 알림 확인 / (수동) AI가 골라 카드 만들기
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          FORCE_DRAFT: ${{ inputs.force && '1' || '0' }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            python scripts/pipeline.py collect && python scripts/pipeline.py thursday
+          else
+            python scripts/pipeline.py draft
+          fi
+
+      - name: 수집 자료 보관
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            data/pool
+            data/bodies
+            output
+          key: newsdata-${{ github.run_id }}
+
+      - name: 초안 저장
+        run: |
+          git config user.name "cserc-news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add issues config
+          git commit -m "주간교육뉴스 초안 작성" || echo "바뀐 내용 없음"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: 알림 보내기 (메일·카톡)
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          EDITOR_EMAILS: ${{ secrets.EDITOR_EMAILS }}
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          sleep 45   # 페이지가 실제로 열릴 때까지 잠시 기다림
+          python scripts/pipeline.py notify

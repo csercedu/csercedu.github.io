@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<style>
+{{ css | safe }}
+.paper { display: flex; flex-direction: column; }
+.hero { position: relative; flex: 1 1 auto; min-height: 300px; margin-top: 22px; }
+.hero .visual { position: absolute; inset: 0; }
+.chip { position: absolute; left: 16px; top: 16px; color: #fff; font-family: "NotoKR"; font-weight: 800; font-size: 21px;
+  padding: 5px 13px; letter-spacing: -.3px; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+.ailabel { position: absolute; left: 14px; bottom: 10px; color: rgba(255,255,255,.92); font-size: 14px; font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6); letter-spacing: -.2px; }
+.kn { position: absolute; right: 0; bottom: -26px; background: var(--orange); color: #fff; padding: 14px 26px 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.22); max-width: 62%; }
+.kn b { display: block; font-family: "BlackHan"; font-weight: 400; font-size: 66px; line-height: 1; letter-spacing: 1px; }
+.kn span { display: block; font-family: "NotoKR"; font-weight: 700; font-size: 20px; margin-top: 6px; letter-spacing: -.4px; }
+.headline { font-family: "BlackHan"; line-height: 1.17; letter-spacing: .5px; padding: 34px 0 0; font-size: {{ p.headline_size }}px; }
+.points { list-style: none; padding: 18px 0 16px; margin: 0; flex: none; }
+.points li { position: relative; padding-left: 26px; font-family: "NotoKR"; font-weight: 600; font-size: 23px; line-height: 1.45;
+  letter-spacing: -.6px; margin: 5px 0; word-break: keep-all; color: #222; }
+.points li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 11px; height: 11px; background: var(--orange); }
+.foot { flex: none; padding-bottom: 20px; }
+.foot .rule.thin { margin-bottom: 9px; }
+.foot p { font-size: 15px; color: #777; letter-spacing: -.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style></head><body>
+<div class="paper">
+  <div class="top">
+    <div class="brand"><img src="{{ root }}/assets/img/emblem.png"><div><div class="motto">하나님의 교육이 가득한 세상</div><div class="name">기독교학교교육연구소</div></div></div>
+    <div class="right">{{ p.source }}</div>
+  </div>
+  <div class="rule"></div>
+  <div class="hero">
+    {{ p.visual_html | safe }}
+    <span class="chip" style="background:{{ p.color }}">{{ p.category }}</span>
+    {% if p.photo_credit %}<span class="ailabel">{{ p.photo_credit }}</span>{% endif %}
+    {% if p.key_number %}<div class="kn"><b>{{ p.key_number }}</b><span>{{ p.key_label }}</span></div>{% endif %}
+  </div>
+  <div class="headline">{{ p.headline_html | safe }}</div>
+  <ul class="points">{% for t in p.points %}<li>{{ t }}</li>{% endfor %}</ul>
+  <div class="foot"><div class="rule thin"></div><p>원문: {{ p.source }} 「{{ p.original_title }}」 · 자세한 요약은 연구소 주간교육뉴스 페이지에서</p></div>
+</div>
+</body></html>

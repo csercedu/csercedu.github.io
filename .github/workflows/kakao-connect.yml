@@ -1,0 +1,33 @@
+name: 4. 카카오 연결 (처음 한 번, 또는 연결이 끊겼을 때)
+
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        description: "카카오 로그인 후 '카카오 연결 코드' 화면에 나온 코드"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 코드로 토큰 받아 Secrets 에 저장
+        env:
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          CODE: ${{ inputs.code }}
+        run: |
+          BASE=$(grep -m1 'base_url:' config/settings.yml | awk '{print $2}'); REDIRECT="${BASE%/}/kakao-auth.html"
+          ARGS=(-d grant_type=authorization_code -d "client_id=$KAKAO_REST_API_KEY" -d "redirect_uri=$REDIRECT" -d "code=$CODE")
+          if [ -n "$KAKAO_CLIENT_SECRET" ]; then ARGS+=(-d "client_secret=$KAKAO_CLIENT_SECRET"); fi
+          RESP=$(curl -s -X POST https://kauth.kakao.com/oauth/token "${ARGS[@]}")
+          TOKEN=$(echo "$RESP" | python3 -c "import sys,json;print(json.load(sys.stdin).get('refresh_token',''))")
+          if [ -z "$TOKEN" ]; then echo "실패: $(echo "$RESP" | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('error_code'),d.get('error_description'))")"; exit 1; fi
+          echo "::add-mask::$TOKEN"
+          gh secret set KAKAO_REFRESH_TOKEN --repo "$GITHUB_REPOSITORY" --body "$TOKEN"
+          echo "카카오 연결 완료 — 이제 '나에게 보내기'가 작동합니다."

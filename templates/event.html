@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<style>
+{{ css | safe }}
+.etitle { font-family: "BlackHan"; font-size: 92px; text-align: center; letter-spacing: 6px; padding: 34px 0 30px; }
+.list { padding-top: 30px; display: flex; flex-direction: column; gap: 22px; }
+.ev { display: flex; gap: 28px; align-items: flex-start; }
+.ev img { width: 330px; box-shadow: 0 2px 8px rgba(0,0,0,.2); flex: none; }
+.ev .txt { font-size: 22px; line-height: 1.6; letter-spacing: -.4px; white-space: pre-line; }
+.ev .txt b { display: block; font-size: 25px; font-weight: 900; margin-bottom: 8px; }
+</style></head><body>
+<div class="paper">
+  <div class="top">
+    <div class="brand"><img src="{{ root }}/assets/img/emblem.png"><div><div class="motto">하나님의 교육이 가득한 세상</div><div class="name">기독교학교교육연구소</div></div></div>
+    <div class="right"></div>
+  </div>
+  <div class="rule"></div>
+  <div class="etitle">다가오는 연구소 행사</div>
+  <div class="rule"></div>
+  <div class="list">
+    {% for e in events %}
+    <div class="ev">
+      {% if e.poster %}<img src="{{ e.poster }}">{% endif %}
+      <div class="txt"><b>{{ e.title }}</b>{{ e.body }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+</body></html>

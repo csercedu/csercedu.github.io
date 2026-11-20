@@ -1,0 +1,10 @@
+# VOL.227 — 수동 제작본 자리. 이 호에 실린 기사 제목을 아래 형식으로 적어 두면 다음 호에서 같은 사건이 빠집니다.
+# picks:
+# - order: 1
+#   original_title: 기사 제목
+vol: 227
+date: '2026-11-20'
+status: published
+written_by: 수동 제작
+hashtags: []
+picks: []

@@ -1,0 +1,108 @@
+name: 5. 카드뉴스 만들기 (기사 고르기 화면의 요청)
+
+# 기사 고르기 화면에서 '카드뉴스 만들기'를 누르면 GitHub 요청 글(이슈)이 만들어진다.
+# 저장소 주인·멤버·협업자가 올린 요청만 처리한다. (공개 저장소라 다른 사람의 요청은 무시)
+on:
+  issues:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "고른 후보 ID (쉼표로, 카드 순서대로)"
+        required: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: cserc-news
+  cancel-in-progress: false
+
+jobs:
+  make:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (startsWith(github.event.issue.title, '카드뉴스 만들기') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 카드용 그림 문자 글꼴 설치
+        run: sudo apt-get install -y -qq fonts-noto-color-emoji fonts-noto-cjk >/dev/null
+
+      - name: 요청 내용 읽기
+        id: req
+        env:
+          BODY: ${{ github.event.issue.body }}
+          INPUT_IDS: ${{ inputs.ids }}
+        run: |
+          SRC="${INPUT_IDS:-$BODY}"
+          IDS=$(printf '%s' "$SRC" | python3 -c "import re,sys; t=sys.stdin.read(); m=re.search(r'선택:\s*([0-9a-f,\s]+)', t); print(','.join(re.findall(r'[0-9a-f]{6}', m.group(1) if m else t)))")
+          if [ -z "$IDS" ]; then echo "고른 기사 ID를 찾지 못했습니다."; exit 1; fi
+          echo "ids=$IDS" >> "$GITHUB_OUTPUT"
+
+      - name: 접수 댓글
+        if: github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --repo "$GITHUB_REPOSITORY" --body "요청을 받았습니다. 고른 기사로 카드와 AI 사진을 만드는 중입니다. (약 5분)"
+
+      - name: 수집 자료 불러오기
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/pool
+            data/bodies
+            output
+          key: newsdata-${{ github.run_id }}
+          restore-keys: newsdata-
+
+      - name: 고른 기사로 AI 문안·사진 → 카드 → 미리보기
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: python scripts/pipeline.py make --ids "${{ steps.req.outputs.ids }}" ${ISSUE:+--issue $ISSUE}
+
+      - name: 초안 저장
+        run: |
+          git config user.name "cserc-news-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add issues config
+          git commit -m "편집자가 고른 기사로 카드뉴스 시안 작성" || echo "바뀐 내용 없음"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+
+      - name: 결과 알리기 (요청 글 댓글·카톡)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          sleep 45
+          python scripts/pipeline.py notify
+
+      - name: 실패하면 요청 글에 알리기
+        if: failure() && github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --repo "$GITHUB_REPOSITORY" --body "카드를 만들지 못했습니다. 실행 기록을 확인해 주세요 → ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

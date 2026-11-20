@@ -1,0 +1,28 @@
+# 주간교육뉴스 자동화 — 기본 설정
+issue:
+  last_vol: 227            # 마지막으로 발행한 호수 (발행할 때마다 자동으로 1씩 올라감)
+  publish_weekday: 금      # 발행 요일
+  picks: 5                 # 카드뉴스에 실을 기사 수
+  alternates: 5            # 예비 기사 수 (검토할 때 바꿔 넣을 수 있음)
+  days: 7                  # 몇 일치 기사에서 고를지
+  headline: original       # 카드 제목: original = 원 기사 제목 그대로(줄만 나눔), ai = AI가 다듬은 제목
+
+ai:
+  model: gemini-3.5-flash          # Google AI Studio 무료 등급 모델
+  fallback_model: gemini-3.1-flash-lite   # 위 모델이 한도 초과일 때
+  candidates_for_ai: 30            # AI에게 보여 줄 후보 사건 수 (점수 상위)
+  body_chars: 1500                 # 후보마다 AI에게 보여 줄 본문 길이
+
+review:
+  # true  = 사람이 확정해야 발행 (처음 한 달)
+  # false = 금요일 오전까지 응답이 없으면 AI 추천안 그대로 발행
+  require_confirmation: true
+
+site:
+  # 뉴스 페이지 주소 — 배포할 때 실제 주소로 바꿉니다 (예: https://news.cserc.or.kr)
+  base_url: https://cserc-edu.github.io
+  title: 주간교육뉴스
+  org: 기독교학교교육연구소
+  org_url: http://www.cserc.or.kr
+  contact: ""   # 문의 이메일 (메일 하단에 표시)
+  repo: "cserc-edu/cserc-edu.github.io"   # GitHub 저장소 '계정/저장소' (비워 두면 GitHub 실행 중에는 자동으로 채워짐)

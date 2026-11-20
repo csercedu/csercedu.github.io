@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>주간교육뉴스 기사 고르기 — {{ meta.generated[:10] }}</title>
+<style>
+:root { --orange:#e8603c; --green:#1d3b2a; --ink:#161616; --muted:#6b6b6b; }
+* { box-sizing:border-box; }
+body { font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; margin:0; background:#f4f1ea; color:#222; word-break:keep-all; }
+header { background:var(--green); color:#fff; padding:20px 20px 18px; }
+header h1 { margin:0 0 6px; font-size:22px; } header p { margin:0; opacity:.85; font-size:14px; line-height:1.5; }
+main { max-width:880px; margin:0 auto; padding:14px 16px 140px; }
+.how { background:#fff; border-left:5px solid var(--orange); padding:12px 16px; margin:14px 0 6px; font-size:14px; line-height:1.6; }
+.filters { display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 4px; }
+.filters button { font:inherit; font-size:13px; border:1px solid #ccc; background:#fff; padding:5px 11px; border-radius:16px; cursor:pointer; }
+.filters button.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+h2 { font-size:16px; margin:22px 4px 4px; color:var(--green); }
+article { display:flex; gap:14px; background:#fff; border-radius:10px; padding:14px 16px; margin:10px 0; box-shadow:0 1px 3px rgba(0,0,0,.08); border:2px solid transparent; cursor:pointer; }
+article.on { border-color:var(--orange); background:#fff8f4; }
+.pick { flex:none; width:40px; height:40px; border-radius:50%; border:2px solid #bbb; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:#fff; margin-top:2px; }
+article.on .pick { background:var(--orange); border-color:var(--orange); }
+.body { flex:1; min-width:0; }
+.meta { display:flex; flex-wrap:wrap; gap:6px; font-size:12px; color:var(--muted); align-items:center; }
+.tag { color:#fff; border-radius:4px; padding:2px 7px; font-weight:600; }
+.score { font-weight:700; color:var(--orange); }
+h3 { margin:6px 0 4px; font-size:17px; line-height:1.4; }
+h3 a { color:#111; text-decoration:none; } h3 a:hover { text-decoration:underline; }
+.src { font-size:13px; color:#555; margin:2px 0; }
+.kw { font-size:12px; color:#888; margin:4px 0; }
+details { font-size:13px; color:#444; } details li { margin:3px 0; } em { color:#888; font-style:normal; }
+.bar { position:fixed; left:0; right:0; bottom:0; background:var(--ink); color:#fff; padding:12px 16px; box-shadow:0 -2px 10px rgba(0,0,0,.2); }
+.bar .in { max-width:880px; margin:0 auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.bar .count { font-weight:700; flex:1; min-width:180px; font-size:15px; }
+.bar .count small { display:block; font-weight:400; opacity:.75; font-size:12px; margin-top:2px; }
+.bar button { font:inherit; font-weight:800; border:0; padding:11px 18px; border-radius:6px; cursor:pointer; }
+.bar .go { background:var(--orange); color:#fff; } .bar .go:disabled { background:#666; color:#aaa; cursor:default; }
+.bar .clear { background:transparent; color:#ddd; border:1px solid #777; }
+</style></head><body>
+<header>
+  <h1>주간교육뉴스 기사 고르기</h1>
+  <p>{{ meta.generated[:16].replace('T', ' ') }} 기준 · 최근 {{ meta.days }}일 · 수집 {{ meta.collected }}건 → 교육 관련 {{ meta.matched }}건 → 사건 {{ meta.clusters }}개 · 상위 {{ cands|length }}개<br>
+  다음 호: VOL.{{ next_vol }} ({{ next_date }} 발행 예정)</p>
+</header>
+<main>
+<div class="how">
+  <b>사용법</b> 카드에 실을 기사를 누르면 순서대로 번호가 붙습니다(누른 순서 = 카드 순서, 보통 5건).
+  다 고른 뒤 아래 <b>카드뉴스 만들기</b>를 누르면 GitHub 요청 화면이 열리고, 그 화면의 <b>Create</b>를 누르면 약 5분 뒤 카드와 AI 사진이 만들어져 미리보기 링크가 그 요청 글에 댓글로 달립니다.
+  제목을 누르면 원문 기사가 열립니다. (공개 페이지라 기사 본문 발췌는 싣지 않습니다)
+</div>
+<div class="filters" id="filters"><button class="on" data-cat="">전체</button>{% for cat in categories %}<button data-cat="{{ cat }}">{{ cat }}</button>{% endfor %}</div>
+
+{% macro card(c, mark) -%}
+<article data-id="{{ c.id }}" data-cats="{{ c.categories|join(',') }}">
+  <div class="pick"></div>
+  <div class="body">
+    <div class="meta">{% for cat in c.categories[:3] %}<span class="tag" style="background:{{ colors.get(cat, '#666') }}">{{ cat }}</span>{% endfor %}{% if c.opinion %}<span class="tag" style="background:#999">의견</span>{% endif %}<span class="score">점수 {{ c.score }}</span><span>{{ c.outlets|length }}개 언론사</span><span>{{ c.published[:16].replace('T', ' ') }}</span>{% if mark %}<span>★ 연구소 관심 분야</span>{% endif %}</div>
+    <h3><a href="{{ c.link }}" target="_blank" rel="noopener" onclick="event.stopPropagation()">{{ c.title }}</a></h3>
+    <p class="src">{{ c.source }} · 보도: {{ c.outlets|join(', ') }}</p>
+    {% if c.keywords %}<p class="kw">키워드: {{ c.keywords|join(', ') }}</p>{% endif %}
+    {% if c.related %}<details onclick="event.stopPropagation()"><summary>같은 사건 다른 기사 {{ c.related|length }}건</summary><ul>{% for r in c.related[:8] %}<li><a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a> <em>{{ r.source }}</em></li>{% endfor %}</ul></details>{% endif %}
+  </div>
+</article>
+{%- endmacro %}
+
+{% if mission %}<h2>연구소 관심 분야 (기독교교육·대안교육·사학·종교)</h2>{% for c in mission %}{{ card(c, True) }}{% endfor %}{% endif %}
+<h2>전체 중요도 순위</h2>
+{% for c in cands %}{{ card(c, False) }}{% endfor %}
+</main>
+
+<div class="bar"><div class="in">
+  <div class="count" id="count">아직 고른 기사가 없습니다<small>기사를 눌러 고르세요</small></div>
+  <button class="clear" id="clear">다시 고르기</button>
+  <button class="go" id="go" disabled>카드뉴스 만들기</button>
+</div></div>
+
+<script>
+const REPO = {{ repo|tojson }};
+const NEXT = {{ ('VOL.' ~ next_vol)|tojson }};
+const INFO = {{ info|tojson }};
+const KEY = 'cserc-picks-' + NEXT;
+let picked = [];
+try { picked = JSON.parse(localStorage.getItem(KEY) || '[]').filter(id => INFO[id]); } catch (e) { picked = []; }
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(picked)); } catch (e) {} }
+function draw() {
+  document.querySelectorAll('article').forEach(a => {
+    const n = picked.indexOf(a.dataset.id);
+    a.classList.toggle('on', n >= 0);
+    a.querySelector('.pick').textContent = n >= 0 ? n + 1 : '';
+  });
+  const c = document.getElementById('count'), go = document.getElementById('go');
+  if (!picked.length) { c.innerHTML = '아직 고른 기사가 없습니다<small>기사를 눌러 고르세요</small>'; go.disabled = true; return; }
+  const hint = picked.length > 7 ? '7건까지만 만들 수 있습니다' : (picked.length === 5 ? '보통 5건입니다' : '1~7건까지 만들 수 있습니다 (보통 5건)');
+  c.innerHTML = `${picked.length}건 선택됨<small>${hint}</small>`;
+  go.disabled = picked.length > 7;
+}
+document.querySelectorAll('article').forEach(a => a.addEventListener('click', () => {
+  const id = a.dataset.id, n = picked.indexOf(id);
+  if (n >= 0) picked.splice(n, 1); else picked.push(id);
+  save(); draw();
+}));
+document.getElementById('clear').onclick = () => { picked = []; save(); draw(); };
+document.getElementById('go').onclick = () => {
+  const lines = picked.map((id, i) => `${i + 1}. ${INFO[id].title} — ${INFO[id].source}`);
+  const title = `카드뉴스 만들기: ${NEXT} (${picked.length}건)`;
+  const body = `선택: ${picked.join(', ')}\n\n${lines.join('\n')}\n\n(자동으로 채워진 요청입니다. 아래 Create 버튼만 누르세요. 약 5분 뒤 미리보기가 댓글로 달립니다.)`;
+  if (!REPO) { alert('저장소 주소가 설정되지 않았습니다. settings.yml 의 site.repo 를 확인하세요.\n\n' + body); return; }
+  window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`, '_blank');
+};
+document.querySelectorAll('#filters button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#filters button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('main article').forEach(a => {
+    a.style.display = !b.dataset.cat || a.dataset.cats.split(',').includes(b.dataset.cat) ? '' : 'none';
+  });
+});
+draw();
+</script>
+</body></html>

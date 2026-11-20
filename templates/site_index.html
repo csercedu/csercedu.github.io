@@ -1,0 +1,35 @@
+{% extends "site_base.html" %}
+{% block head %}
+<style>
+h1 { font-size:26px; margin:6px 0 4px; }
+.lead { color:var(--muted); margin:0 0 22px; }
+.latest { display:flex; gap:22px; background:#fff; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,.08); text-decoration:none; }
+.latest img { width:300px; max-width:42%; aspect-ratio:1; flex:none; }
+.latest h2 { margin:4px 0 8px; font-size:21px; }
+.latest ol { padding-left:20px; margin:8px 0 0; }
+.latest li { margin:4px 0; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:28px; }
+.grid a { background:#fff; text-decoration:none; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.grid img { width:100%; aspect-ratio:1; display:block; }
+.grid div { padding:10px 12px 12px; font-weight:700; font-size:15px; }
+.grid small { display:block; font-weight:400; color:var(--muted); }
+@media (max-width:640px){ .latest{flex-direction:column} .latest img{width:100%;max-width:none} }
+</style>
+{% endblock %}
+{% block main %}
+<h1>주간교육뉴스</h1>
+<p class="lead">학부모와 교사가 꼭 알아야 할 한 주의 교육 소식을 다섯 건으로 정리해 매주 {{ weekday }}요일에 전합니다.</p>
+{% if latest %}
+<a class="latest" href="{{ latest.url }}">
+  <img src="{{ latest.thumb }}" alt="">
+  <div><span class="vol">VOL.{{ latest.vol }}</span><small>{{ latest.date }}</small>
+  <h2>{{ latest.title }}</h2>
+  <ol>{% for p in latest.picks %}<li>{{ p.headline_line }}</li>{% endfor %}</ol></div>
+</a>
+{% endif %}
+<div class="grid">
+{% for i in issues %}
+  <a href="{{ i.url }}"><img src="{{ i.thumb }}" alt="" loading="lazy"><div>{{ i.title }}<small>VOL.{{ i.vol }} · {{ i.date }}</small></div></a>
+{% endfor %}
+</div>
+{% endblock %}
