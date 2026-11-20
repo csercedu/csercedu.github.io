@@ -319,13 +319,23 @@ def main():
 
     if args.from_response:
         resp, model = json.loads(Path(args.from_response).read_text(encoding="utf-8")), args.model_label or "수동 입력"
-    elif args.dry_run or not os.environ.get("GEMINI_API_KEY"):
+    elif args.dry_run or (not selected and not os.environ.get("GEMINI_API_KEY")):
         print(f"지시문을 저장했습니다: {issue_dir / 'prompt.txt'} ({len(prompt):,}자)")
         if not args.dry_run:
             print("GEMINI_API_KEY 가 없어 AI 호출은 건너뛰었습니다.")
         return
+    elif not os.environ.get("GEMINI_API_KEY"):
+        # 편집자가 고른 기사는 AI 없이도 카드를 만든다 (원 기사 제목만, 문구는 직접 채움)
+        print("GEMINI_API_KEY 가 없어 AI 문구 없이 원 기사 제목으로만 카드를 만듭니다.")
+        resp, model = {"picks": [], "alternates": [], "hashtags": []}, "AI 없음"
     else:
-        resp, model = call_gemini(prompt, settings, os.environ["GEMINI_API_KEY"])
+        try:
+            resp, model = call_gemini(prompt, settings, os.environ["GEMINI_API_KEY"])
+        except Exception as e:  # noqa: BLE001
+            if not selected:
+                raise
+            print(f"AI 호출 실패 — 원 기사 제목으로만 카드를 만듭니다: {e}")
+            resp, model = {"picks": [], "alternates": [], "hashtags": []}, "AI 없음"
 
     picks, alts = [], []
     if selected:

@@ -101,7 +101,7 @@ def cmd_make(ids, issue):
     run(*args)
     _, _, d = next_issue(s)
     if not (d / "draft.yml").exists():
-        sys.exit("카드 문안을 만들지 못했습니다. GEMINI_API_KEY 설정을 확인하세요.")
+        sys.exit("카드 초안을 만들지 못했습니다. 위 기록을 확인하세요.")
     run("scripts/render_cards.py", str(d))
     run("scripts/build_site.py", "--preview")
     PENDING.write_text(yaml.safe_dump({"kind": "made", "dir": str(d.relative_to(ROOT)), "issue": issue},
@@ -178,7 +178,10 @@ def made_comment(d, y, url):
     for p in y["picks"]:
         checks = "".join(f"\n   - ⚠️ {c}" for c in p.get("check", []))
         rows.append(f"{p['order']}. **{headline_line(p)}** — {p['source']}{checks}")
-    return (f"### VOL.{y['vol']} 카드뉴스 시안이 만들어졌습니다\n\n"
+    no_ai = ("\n\n> ⚠️ **AI 문구 없이 만들었습니다.** Gemini 키(`GEMINI_API_KEY`)가 없거나 AI 호출이 실패해 "
+             "원 기사 제목만 넣었습니다. 키를 넣은 뒤 같은 기사로 다시 요청하거나, 아래 '초안 고치기'에서 직접 채우세요."
+             if y.get("written_by") == "AI 없음" else "")
+    return (f"### VOL.{y['vol']} 카드뉴스 시안이 만들어졌습니다{no_ai}\n\n"
             f"**[미리보기 열기]({url})**\n\n![표지]({url}01-cover.jpg)\n\n" + "\n".join(rows) +
             f"\n\n**발행하려면** 이 글에 `발행` 이라고 댓글을 다세요. 약 3분 뒤 구독자 메일까지 나갑니다.\n\n"
             f"**고치려면** [초안 고치기]({edit_url(d)})에서 문구·그림 설명(`image_prompt`)을 고쳐 저장하면 미리보기가 다시 만들어집니다. "
