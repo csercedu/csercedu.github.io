@@ -17,7 +17,7 @@ h1 { font-size:26px; margin:6px 0 4px; }
 </style>
 {% endblock %}
 {% block main %}
-<h1>주간교육뉴스</h1>
+<h1>지난 호 모아보기</h1>
 <p class="lead">학부모와 교사가 꼭 알아야 할 한 주의 교육 소식을 다섯 건으로 정리해 매주 {{ weekday }}요일에 전합니다.</p>
 {% if latest %}
 <a class="latest" href="{{ latest.url }}">
@@ -27,6 +27,7 @@ h1 { font-size:26px; margin:6px 0 4px; }
   <ol>{% for p in latest.picks %}<li>{{ p.headline_line }}</li>{% endfor %}</ol></div>
 </a>
 {% endif %}
+{% if not issues %}<p class="lead">아직 발행된 호가 없습니다. 첫 호가 나오면 이곳에 차례로 쌓입니다.</p>{% endif %}
 <div class="grid">
 {% for i in issues %}
   <a href="{{ i.url }}"><img src="{{ i.thumb }}" alt="" loading="lazy"><div>{{ i.title }}<small>VOL.{{ i.vol }} · {{ i.date }}</small></div></a>

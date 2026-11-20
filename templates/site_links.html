@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ site.title }} | {{ site.org }}</title>
+<meta name="description" content="{{ description }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ site.org }} {{ site.title }}">
+<meta property="og:title" content="{{ site.org }} {{ site.title }}">
+<meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ site.base_url }}/">
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">
+<meta property="og:image:width" content="1080"><meta property="og:image:height" content="1080">{% endif %}
+<link rel="icon" href="{{ site.base_url }}/assets/emblem.png">
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ site.base_url }}/feed.xml">
+<style>
+@font-face { font-family:"BHS"; src:url("{{ site.base_url }}/assets/title.woff2") format("woff2"); font-display:swap; }
+:root { --orange:#e8603c; --ink:#161616; --paper:#f4f2ed; --navy:#1d3b6a; --muted:#6b6b6b; }
+* { box-sizing:border-box; }
+html { background:var(--paper); }
+body { margin:0; font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  color:var(--ink); line-height:1.5; word-break:keep-all; -webkit-text-size-adjust:100%; }
+a { color:inherit; text-decoration:none; }
+.wrap { max-width:520px; margin:0 auto; padding:0 18px 40px; }
+
+.top { background:var(--ink); color:#fff; text-align:center; padding:34px 18px 64px; position:relative; overflow:hidden; }
+.top::after { content:""; position:absolute; left:-10%; right:-10%; bottom:-38px; height:76px; background:var(--paper); border-radius:50%; }
+.top .emb { width:66px; height:66px; border-radius:50%; background:#fff; padding:8px; object-fit:contain; }
+.top .org { font-size:13px; opacity:.75; margin-top:10px; letter-spacing:.02em; }
+.top h1 { font-family:"BHS","Black Han Sans",sans-serif; font-weight:400; font-size:44px; line-height:1.1; margin:6px 0 8px; }
+.top h1 span { color:var(--orange); }
+.top p { margin:0 auto; max-width:330px; font-size:15px; opacity:.9; }
+
+.latest { display:block; background:#fff; margin-top:-34px; position:relative; box-shadow:0 6px 22px rgba(0,0,0,.12); }
+.latest img { width:100%; aspect-ratio:1; display:block; background:#ddd; }
+.latest .cap { padding:14px 16px 16px; }
+.latest .lab { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
+.vol { font-family:"BHS","Black Han Sans",sans-serif; background:var(--orange); color:#fff; padding:2px 9px 1px; font-size:15px; }
+.latest h2 { font-size:19px; margin:6px 0 4px; }
+.latest ol { margin:6px 0 0; padding-left:20px; font-size:15px; color:#333; }
+.latest ol li { margin:2px 0; }
+.latest .go { margin-top:12px; background:var(--ink); color:#fff; text-align:center; font-weight:800; padding:12px; font-size:16px; }
+.empty { background:#fff; margin-top:-34px; position:relative; padding:28px 18px; text-align:center; box-shadow:0 6px 22px rgba(0,0,0,.12); color:var(--muted); }
+
+.links { margin-top:22px; display:flex; flex-direction:column; gap:10px; }
+.btn { display:flex; align-items:center; gap:14px; background:#fff; border:2px solid var(--ink); padding:13px 16px; min-height:64px;
+  box-shadow:4px 4px 0 var(--ink); transition:transform .08s, box-shadow .08s; }
+.btn:active { transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+.btn .ic { font-size:24px; width:32px; text-align:center; flex:none; }
+.btn b { display:block; font-size:16px; }
+.btn small { display:block; font-size:13px; color:var(--muted); }
+.btn .ar { margin-left:auto; font-weight:800; color:var(--orange); }
+.btn.main { background:var(--orange); color:#fff; border-color:var(--ink); }
+.btn.main small { color:#fff; opacity:.85; }
+.btn.main .ar { color:#fff; }
+
+h3 { font-size:15px; margin:30px 0 10px; border-top:3px solid var(--ink); padding-top:10px; }
+.recent a { display:flex; gap:12px; align-items:center; padding:8px 0; border-bottom:1px solid #ddd; }
+.recent img { width:58px; height:58px; flex:none; background:#ddd; }
+.recent b { display:block; font-size:15px; }
+.recent small { color:var(--muted); font-size:13px; }
+
+.share { margin-top:26px; text-align:center; }
+.share button { font:inherit; font-weight:700; background:none; border:1.5px solid var(--ink); padding:9px 18px; cursor:pointer; }
+footer { text-align:center; font-size:12px; color:var(--muted); margin-top:26px; line-height:1.7; }
+footer a { text-decoration:underline; }
+</style>
+</head><body>
+<header class="top">
+  <img class="emb" src="{{ site.base_url }}/assets/emblem.png" alt="{{ site.org }}">
+  <div class="org">{{ site.org }}</div>
+  <h1>주간<span>교육</span>뉴스</h1>
+  <p>학부모와 교사가 꼭 알아야 할 한 주의 교육 소식을 매주 {{ weekday }}요일에 전합니다</p>
+</header>
+
+<div class="wrap">
+{% if latest %}
+  <a class="latest" href="{{ latest.url }}">
+    <img src="{{ latest.thumb }}" alt="주간교육뉴스 VOL.{{ latest.vol }} 표지">
+    <div class="cap">
+      <div class="lab"><span class="vol">VOL.{{ latest.vol }}</span>이번 주 카드뉴스 · {{ latest.date }}</div>
+      <h2>{{ latest.title }}</h2>
+      <ol>{% for p in latest.picks[:5] %}<li>{{ p.headline_line }}</li>{% endfor %}</ol>
+      <div class="go">카드뉴스 보기 →</div>
+    </div>
+  </a>
+{% else %}
+  <div class="empty">새 카드뉴스를 준비하고 있습니다.<br>곧 이곳에서 만나실 수 있어요.</div>
+{% endif %}
+
+  <nav class="links">
+    <a class="btn main" href="{{ site.base_url }}/archive/"><span class="ic">📚</span><span><b>지난 호 모아보기</b><small>지금까지 나온 주간교육뉴스 전체</small></span><span class="ar">→</span></a>
+{% for l in links %}
+    <a class="btn" href="{{ l.url }}"{% if l.external %} target="_blank" rel="noopener"{% endif %}><span class="ic">{{ l.icon }}</span><span><b>{{ l.name }}</b>{% if l.desc %}<small>{{ l.desc }}</small>{% endif %}</span><span class="ar">→</span></a>
+{% endfor %}
+  </nav>
+
+{% if recent %}
+  <h3>지난 호</h3>
+  <div class="recent">
+  {% for i in recent %}
+    <a href="{{ i.url }}"><img src="{{ i.thumb }}" alt="" loading="lazy"><span><b>{{ i.title }}</b><small>VOL.{{ i.vol }} · {{ i.date }}</small></span></a>
+  {% endfor %}
+  </div>
+{% endif %}
+
+  <div class="share"><button type="button" id="share">🔗 이 페이지 공유하기</button></div>
+
+  <footer>
+    {{ site.org }}{% if site.contact %} · {{ site.contact }}{% endif %}<br>
+    기사의 저작권은 각 언론사에 있으며, 요약은 연구소가 작성했습니다.<br>
+    <a href="{{ site.base_url }}/feed.xml">RSS</a>
+  </footer>
+</div>
+<script>
+document.getElementById('share').addEventListener('click', function () {
+  var url = '{{ site.base_url }}/', b = this;
+  if (navigator.share) { navigator.share({ title: '{{ site.org }} {{ site.title }}', url: url }).catch(function () {}); return; }
+  var done = function () { b.textContent = '✅ 주소를 복사했습니다'; };
+  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(done, function () { prompt('주소를 복사하세요', url); }); }
+  else { prompt('주소를 복사하세요', url); }
+});
+</script>
+</body></html>

@@ -23,6 +23,7 @@ config/        ← 연구소가 직접 고치는 설정
   exclude.txt    제외할 단어
   editorial.md   AI 편집 기준(무엇을 고르고 어떻게 쓰는지)
   settings.yml   호수, 발행 요일, AI 모델, 확인 필수 여부, 페이지 주소
+  links.yml      메인 링크 페이지의 버튼 목록 (구독, 카톡 채널, 홈페이지 등)
 issues/        ← 호마다 폴더 하나 (draft.yml = 그 호의 원고, cards/ = 카드 이미지)
 scripts/       ← 프로그램 (collect → ai_select → render_cards → build_site → notify, pipeline 이 전체 진행)
 templates/     ← 카드·페이지·메일 디자인

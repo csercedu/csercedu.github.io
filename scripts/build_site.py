@@ -3,7 +3,8 @@
 
 하는 일
   1) 발행된 호(status: published)를 모아 site/ 에 뉴스 페이지를 만든다. (GitHub Pages 로 무료 공개)
-       site/index.html          전체 호 목록
+       site/index.html          메인 링크 페이지 (이번 주 카드뉴스 + 버튼 목록, config/links.yml)
+       site/archive/index.html  전체 호 목록
        site/vol227/index.html   호별 페이지 (카드 슬라이드 + 기사 5건 글 + 원문 링크)
        site/feed.xml            RSS
   2) 각 호의 발송 문안을 issues/<호>/out/ 에 만든다.
@@ -112,6 +113,8 @@ def build(include_drafts=False, base_url=None):
         shutil.rmtree(dist)
     (dist / "assets").mkdir(parents=True)
     shutil.copy(ROOT / "assets/img/emblem.png", dist / "assets/emblem.png")
+    shutil.copy(ROOT / "assets/fonts/BlackHanSans-title.woff2", dist / "assets/title.woff2")
+    shutil.copy(ROOT / "assets/fonts/OFL-BlackHanSans.txt", dist / "assets/OFL-BlackHanSans.txt")
 
     raw = load_issues(include_drafts)
     issues = [prepare(y, site, include_drafts) for y in raw]
@@ -144,13 +147,18 @@ def build(include_drafts=False, base_url=None):
         write_messages(i, site)
         shutil.copy(target / "email.html", i["dir"] / "out" / "email.html")
 
-    latest = published[0] if published else (issues[0] if issues else None)
-    (dist / "index.html").write_text(env.get_template("site_index.html").render(
-        site=site, latest=latest, issues=published or issues[:1],
-        weekday=settings["issue"]["publish_weekday"],
-        page_title=f"{site['org']} {site['title']}",
-        description="학부모와 교사가 꼭 알아야 할 한 주의 교육 소식",
-        canonical=site["base_url"] + "/", og_image=latest["cover_url"] if latest else ""), encoding="utf-8")
+    latest = published[0] if published else None
+    weekday = settings["issue"]["publish_weekday"]
+    description = "학부모와 교사가 꼭 알아야 할 한 주의 교육 소식"
+    (dist / "archive").mkdir(exist_ok=True)
+    (dist / "archive" / "index.html").write_text(env.get_template("site_index.html").render(
+        site=site, latest=latest, issues=published, weekday=weekday,
+        page_title=f"지난 호 모아보기 | {site['org']} {site['title']}", description=description,
+        canonical=site["base_url"] + "/archive/", og_image=latest["cover_url"] if latest else ""), encoding="utf-8")
+    # 메인 링크 페이지 — 첫 화면
+    (dist / "index.html").write_text(env.get_template("site_links.html").render(
+        site=site, latest=latest, recent=published[1:4], links=load_links(), weekday=weekday,
+        description=description, og_image=latest["cover_url"] if latest else ""), encoding="utf-8")
 
     items = "".join(
         f"<item><title>{escape(i['title'])} (VOL.{i['vol']})</title><link>{i['url']}</link><guid>{i['url']}</guid>"
@@ -165,6 +173,25 @@ def build(include_drafts=False, base_url=None):
     write_kakao_auth_page(dist)
     write_review_page(dist, settings, env)
     return issues
+
+
+def load_links():
+    """config/links.yml → 메인 링크 페이지 버튼 목록. 주소가 빈 줄은 숨긴다."""
+    from urllib.parse import quote
+    f = ROOT / "config/links.yml"
+    if not f.exists():
+        return []
+    out = []
+    for l in (yaml.safe_load(f.read_text(encoding="utf-8")) or {}).get("links") or []:
+        url = str(l.get("주소") or "").strip()
+        if not url:
+            continue
+        if url.startswith("mailto:"):  # 메일 제목·본문의 한글과 띄어쓰기를 주소 형식으로 바꾼다
+            url = quote(url, safe=":@?&=/.+-_%")
+        out.append({"name": str(l.get("이름") or "").strip(), "desc": str(l.get("설명") or "").strip(),
+                    "icon": str(l.get("아이콘") or "🔗").strip(), "url": url,
+                    "external": url.startswith("http")})
+    return out
 
 
 CAT_COLORS = {

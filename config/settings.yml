@@ -20,9 +20,9 @@ review:
 
 site:
   # 뉴스 페이지 주소 — 배포할 때 실제 주소로 바꿉니다 (예: https://news.cserc.or.kr)
-  base_url: https://cserc-edu.github.io
+  base_url: https://csercedu.github.io
   title: 주간교육뉴스
   org: 기독교학교교육연구소
   org_url: http://www.cserc.or.kr
   contact: ""   # 문의 이메일 (메일 하단에 표시)
-  repo: "cserc-edu/cserc-edu.github.io"   # GitHub 저장소 '계정/저장소' (비워 두면 GitHub 실행 중에는 자동으로 채워짐)
+  repo: "csercedu/csercedu.github.io"   # GitHub 저장소 '계정/저장소' (비워 두면 GitHub 실행 중에는 자동으로 채워짐)
